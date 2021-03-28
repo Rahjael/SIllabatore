@@ -1,0 +1,179 @@
+
+
+function divideWordOldVersion(word) {  
+/*
+    RULES:
+
+    http://www.accademiadellacrusca.it/it/lingua-italiana/consulenza-linguistica/domande-risposte/divisione-sillabe
+
+    Vediamo allora quali sono le regole per dividere correttamente le parole in italiano:
+
+    RULE 1:
+    Una vocale iniziale seguita da una sola consonante costituisce una sillaba:
+        e-la-bo-ra-re; a-lian-te; u-mi-do;i-do-lo; o-do-re, u-no.
+    
+    RULE 2:
+    Una consonante semplice forma una sillaba con la vocale seguente: da-do; pe-ra.
+
+
+    Exceptions:
+
+    RULE 3:
+    Non si divide mai un gruppo di consonanti formato da b, c, d, f, g, p, t, v + l oppure r: 
+        a-tle-ti-ca; bi-bli-co; bro-do; in-cli-to; cre-de-re; dro-me-da-rio; fle-bi-le; 
+        a-fri-ca-no; gla-di-o-lo; gre-co; pe-plo; pre-go; tre-no; a-vrà.
+
+    RULE 4:
+    Non si divide mai un gruppo formato da s + consonante/i: 
+        o-stra-ci-smo; te-schio; co-sto-la; sco-iat-to-lo; co-stru-i-re; ca-spi-ta, stri-scio-ne.
+
+    RULE 5:
+    Si dividono i gruppi costituiti da due consonanti uguali (tt, dd, ecc. e anche cq) 
+    e i gruppi consonantici che non sono ammessi ad inizio di parola 
+    (del tipo cn, lm, rc, bd, mb, mn, ld, ng, nd, tm): 
+        tet-to; ac-qua; ri-sciac-quo; cal-ma; ri-cer-ca; rab-do-man-te; 
+        im-bu-to; cal-do; in-ge-gne-re; quan-do; am-ni-sti-a; Gian-mar-co; tec-ni-co, a-rit-me-ti-ca.
+
+    RULE 6:
+    Nei gruppi consonantici formati da tre o più consonanti (rst, ntr, ltr, rtr, btr) 
+    si divide prima della seconda consonante, anche in presenza di prefissi come 
+        inter-, trans-, iper-, sub-, super-: 
+        con-trol-lo, ven-tri-co-lo, al-tro, scal-tro, in-ter-sti-zio, 
+        tran-stel-la-re, i-per-tro-fi-co, sub-tro-pi-ca-le, su-per-cri-ti-ci-tà.
+*/
+
+
+
+/*
+    This function scans the word FROM ITS END and works its way backwards.
+
+    The main idea is the following (not yet sure if this is confirmed):
+
+    Syllables only finish in vowels and 'n'. Unless there are two equal consonants, in that case you split.
+
+    If this is true, that's the only thing I have to check to divide the word, and then fix exceptions for dittonghi
+
+*/
+
+
+  let currentIndex = word.length - 1;
+  let endOfSylIndex = word.length - 1;
+  let currentLetter = word.charAt(currentIndex);
+  let lastWasDoubleOrQ = false;
+  let lastWasNLR = false;
+  
+  let syllablesFound = [];
+  
+
+  let ptrConsonantManager = () => {
+
+    while(isConsonant(currentLetter) && currentIndex >= 0) {
+
+      // Checks for doubles and "cq"
+      if(currentLetter == word.charAt(currentIndex + 1) || (currentLetter == 'c' && word.charAt(currentIndex + 1) == 'q')) {
+        lastWasDoubleOrQ = true;
+        break;
+      }
+      // Checks for m, n, l, r when followed by consonant
+      else if(['m', 'n', 'l', 'r'].includes(currentLetter) && isConsonant(word.charAt(currentIndex + 1))) {
+        lastWasNLR = true;
+        break;
+      }
+      else {
+        currentIndex--;
+        currentLetter = word.charAt(currentIndex);
+      }
+    }
+  }
+
+  let ptrVowelsManager = () => {
+
+    // a, e, o - aspre
+    // u, i - dolci
+
+    if(isConsonant(word.charAt(currentIndex))) return;
+
+    let lookAheadLeft2 = [word.charAt(currentIndex - 1), currentLetter];
+    let lookAheadLeft3 = [word.charAt(currentIndex - 2)].concat(lookAheadLeft2);
+    let lookAheadLeft4 = [word.charAt(currentIndex - 3)].concat(lookAheadLeft3);
+
+    // Detect "trittongo"
+    if(areEqual(lookAheadLeft3, ['u', 'a', 'i'])
+        || areEqual(lookAheadLeft3, ['u', 'o', 'i'])
+        || areEqual(lookAheadLeft3, ['i', 'u', 'o'])) {
+
+      //console.log("trittongo: ", lookAheadLeft3, word)
+      currentIndex -= 3;
+      currentLetter = word.charAt(currentIndex);
+      return;
+    }
+
+    // Checks "ia" "io "ie"
+    if(currentLetter == 'i' && currentIndex > 0 && ['a', 'o', 'e', 'u'].includes(word.charAt(currentIndex + 1))) {
+      currentIndex--;
+      currentLetter = word.charAt(currentIndex);
+    }
+    // Checks "au"
+    else if(currentLetter == 'a' && word.charAt(currentIndex + 1) == 'u' && currentIndex > 0) {
+      currentIndex--;
+      currentLetter = word.charAt(currentIndex);
+    }
+    // Checks "uo"
+    else if(currentLetter == 'u' && currentIndex > 0 && ['o', 'i', 'e', 'a'].includes(word.charAt(currentIndex + 1))) {
+      currentIndex--;
+      currentLetter = word.charAt(currentIndex);
+    }
+
+  }
+
+
+  while(true) {
+
+    //console.log("before: ", currentLetter, currentIndex, endOfSylIndex, word)
+
+    
+    ptrVowelsManager();
+    ptrConsonantManager();
+    
+    //console.log("after: ", currentLetter, currentIndex, endOfSylIndex, word)
+    
+    let tempSyl = word.substring(currentIndex + 1, endOfSylIndex + 1);
+    
+    /* istanbul ignore next */
+    if(tempSyl != "") {
+      //console.log("pushed: ", tempSyl);
+      syllablesFound.push(tempSyl);
+      endOfSylIndex = currentIndex;
+    }
+
+
+    let lookAheadLeft3 = [word.charAt(currentIndex - 2), word.charAt(currentIndex - 1), currentLetter];
+    
+    // If a double was just separated
+    // Or there was 'n' followed by a consonant
+    // AND we are not at first letter
+    // THEN skip next letter
+    if((lastWasDoubleOrQ || lastWasNLR) && currentIndex > 0) {
+      currentIndex -= 2;
+      currentLetter = word.charAt(currentIndex);
+      lastWasDoubleOrQ = false;
+      lastWasNLR = false;
+    }
+    // Check if inside trittongo
+    else if(areEqual(lookAheadLeft3, ['i', 'u', 'o'])) {
+      //console.log("Trittongo detected, don't decrement pointer");
+      continue;
+    }
+    // In any other case, just decrement pointer
+    else if(currentIndex >= 0) {
+      currentIndex--;
+      currentLetter = word.charAt(currentIndex);
+    }
+    else {
+      break;
+    }
+  }
+
+  return syllablesFound.reverse().join('-');  
+}
+

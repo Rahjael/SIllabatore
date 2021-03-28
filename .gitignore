@@ -1,0 +1,5 @@
+coverage
+node_modules
+old_cpp
+package-lock.json
+package.json
