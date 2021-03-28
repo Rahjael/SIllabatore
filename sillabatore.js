@@ -19,10 +19,7 @@ function areEqual(arr1, arr2) {
 // END Helper functions
 
 
-
-
 function divideWord(word) {
-
   
   /*
   Rules are taken from: https://www.linkuaggio.com/2011/08/grammatica-italiana-divisione-in.html
@@ -36,8 +33,7 @@ function divideWord(word) {
    
     if(isVowel(word.charAt(0)) && isConsonant(word.charAt(1)) && isVowel(word.charAt(2))) {
       return word.slice(0, 1) + '-' + word.slice(1);
-    }
-    
+    }    
     return word;
   }
   
@@ -182,7 +178,6 @@ function divideWord(word) {
   
   let isUndividableConsonants = (str) => { // str.length === 2
     // I nessi costituiti da b, c, d, f, g, p, t, v + l / r non si dividono mai.
-    
     let firstChar = ['b','c','d','f','g','p','t','v'];
     let secondChar = ['l','r'];
     
@@ -205,15 +200,15 @@ function divideWord(word) {
   }
 
   let isIato = (str) => { // str.length === 2
-    // TODO
+    // TODO not needed at the moment
   }
-  
-  
+    
   /*
   *
   *   END SUBROUTINES
   * 
   */ 
+
 
   /*
   *
@@ -221,13 +216,10 @@ function divideWord(word) {
   * 
   */ 
 
- 
-  //console.log("Analising: ", word)
-
-  // Apply context rules going backwards
 
   let dittonghiExceptions = ['m'];
-
+ 
+  // Apply context rules going backwards
   for(let z = word.length - 1; z > 0; z--) {
     let currentChar = word.charAt(z);
     let prevChar = word.charAt(z - 1);
@@ -309,14 +301,6 @@ function divideWord(word) {
 
 
 
-
-            
-            
-            
-            
-            
-            
-            
 // XXX This workaround is necessary to avoid showing uncaught errors in the console
 // This export sintax is required by the Jest testing suites but is not accepted by 
 // current browsers
