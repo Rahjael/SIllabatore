@@ -19,24 +19,20 @@ function areEqual(arr1, arr2) {
 // END Helper functions
 
 
-function divideWord(word) {
-  
+function divideWord(word) {  
   /*
   Rules are taken from: https://www.linkuaggio.com/2011/08/grammatica-italiana-divisione-in.html
-  */
- 
+  */ 
  let isolateInitialVowel = (word) => {
     /* 
     Una vocale iniziale di parola, seguita da una sola consonante, costituisce da sola una sillaba. 
     Se trovate una vocale all'inizio della parola e tale vocale è seguita da una sola consonante (solo una: non di più) la vocale forma da sola una sillaba.
-    */
-   
+    */   
     if(isVowel(word.charAt(0)) && isConsonant(word.charAt(1)) && isVowel(word.charAt(2))) {
       return word.slice(0, 1) + '-' + word.slice(1);
     }    
     return word;
-  }
-  
+  }  
 
   let divideDoublesCQ = (word) => {
     /*
@@ -55,15 +51,13 @@ function divideWord(word) {
   
   let divideConsonantTriplets = (word) => {
     // Nelle parole con tre o più consonanti la divisione in sillabe 
-    // avviene tra la prima e la seconda.
-    
+    // avviene tra la prima e la seconda.    
     for(let i = 0, j = i + 1, k = j + 1; k < word.length; i++, j++, k++) {
       iChar = word.charAt(i);
       jChar = word.charAt(j);
       kChar = word.charAt(k);
 
-      if([iChar, jChar, kChar].some( c => c === '-')) continue;
-      
+      if([iChar, jChar, kChar].some( c => c === '-')) continue;      
       if([iChar, jChar, kChar].every(isConsonant)) {
         // Added check for 4 consonants ("tungsteno")
         if(isConsonant(word.charAt(k + 1))) {
@@ -204,16 +198,11 @@ function divideWord(word) {
   }
     
   /*
-  *
   *   END SUBROUTINES
-  * 
   */ 
 
-
   /*
-  *
   *   ACTUAL ALGORITHM
-  * 
   */ 
 
 
@@ -274,20 +263,14 @@ function divideWord(word) {
     if(isUndividableConsonants(currentChar + nextChar)) {
       word = word.slice(0, z) + '-' + word.slice(z);
     }
-
   }
   
-  //console.log("word before sweeping rules: ", word);
   
   // Apply particular rules
   word = divideDoublesCQ(word);
-  //console.log("after divideDoublesCQ: ", word)
   word = isolateInitialVowel(word);
-  //console.log("after isolateInitialVowel: ", word)
   word = fixLetterS(word);
-  //console.log("after fixLetterS: ", word)
   word = divideConsonantTriplets(word);
-  //console.log("after divideConsonantTriplets: ", word)
   word = fix4Vowels(word);
 
   if(word.charAt(0) == '-') {
@@ -296,8 +279,6 @@ function divideWord(word) {
 
   return word;
 }
-
-
 
 
 
